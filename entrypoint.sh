@@ -9,7 +9,6 @@ if ! id coder &>/dev/null; then
     chmod 0440 /etc/sudoers.d/coder
 fi
 
-mkdir -p /workspace/home/coder
 chown coder:coder /workspace/home/coder
 
 # SSH
