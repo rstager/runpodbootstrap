@@ -22,8 +22,11 @@ chmod 0440 /etc/sudoers.d/coder
 # 4. SSH — ensure coder can connect with the same key as root
 mkdir -p /workspace/home/coder/.ssh
 cp /root/.ssh/authorized_keys /workspace/home/coder/.ssh/authorized_keys 2>/dev/null || true
-chown -R coder:coder /workspace/home/coder/.ssh 2>/dev/null || true
 chmod 700 /workspace/home/coder/.ssh
 chmod 600 /workspace/home/coder/.ssh/authorized_keys 2>/dev/null || true
+
+# 5. Disable SSH StrictModes so key auth works even when /workspace can't be chowned
+grep -qF 'StrictModes no' /etc/ssh/sshd_config || echo 'StrictModes no' >> /etc/ssh/sshd_config
+service ssh restart 2>/dev/null || true
 
 echo "[entrypoint] Bootstrap complete"
