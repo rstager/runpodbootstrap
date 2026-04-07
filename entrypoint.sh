@@ -119,4 +119,4 @@ fi
 CODER_EOF
 
 echo "[entrypoint] Bootstrap complete"
-tail -f /dev/null
+
