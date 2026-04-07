@@ -103,12 +103,7 @@ echo "[entrypoint] GPU:"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null \
     || echo "[entrypoint] WARNING: nvidia-smi failed"
 
-# 14. Disk check
-for vol in /workspace "$HOME/data" "$HOME/scratch"; do
-    [ -d "$vol" ] && echo "[entrypoint] $vol: $(df -h "$vol" | tail -1 | awk '{print $4}') free"
-done
-
-# 15. Launch Claude in a background tmux session named "claude"
+# 14. Launch Claude in a background tmux session named "claude"
 #     --dangerously-skip-permissions: no tool approval prompts
 #     --remote-control: enables iOS app / remote access
 #     Idempotent: skip if session already exists
