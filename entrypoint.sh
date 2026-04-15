@@ -7,8 +7,10 @@ set -euo pipefail
 BASHRC="/root/.bashrc"
 
 # 1. Disable SSH StrictModes so key auth works even when /workspace can't be chowned
-grep -qF 'StrictModes no' /etc/ssh/sshd_config || echo 'StrictModes no' >> /etc/ssh/sshd_config
-service ssh restart 2>/dev/null || true
+grep -qF 'StrictModes no' /etc/ssh/sshd_config || {
+    echo 'StrictModes no' >> /etc/ssh/sshd_config
+    service ssh restart 2>/dev/null || true
+}
 
 # 2. Source .env if present (secrets: HF_TOKEN, WANDB_KEY, GITHUB_TOKEN, etc.)
 for env_file in /workspace/*/.env; do
@@ -50,6 +52,7 @@ EOF
 
 # 7. Install Claude Code
 CLAUDE_BASHRC_MARKER="# cloud: claude-code PATH"
+export PATH="$HOME/.claude/bin:$PATH"
 if ! command -v claude &>/dev/null; then
     curl -fsSL https://claude.ai/install.sh | bash
 fi
@@ -60,10 +63,10 @@ if ! grep -qF "$CLAUDE_BASHRC_MARKER" "$BASHRC" 2>/dev/null; then
 export PATH="$HOME/.claude/bin:$PATH"
 BASHEOF
 fi
-export PATH="$HOME/.claude/bin:$PATH"
 
 # 8. Install uv
 UV_BASHRC_MARKER="# cloud: uv PATH"
+export PATH="$HOME/.local/bin:$PATH"
 if ! command -v uv &>/dev/null; then
     curl -fsSL https://astral.sh/uv/install.sh | sh
 fi
@@ -74,12 +77,12 @@ if ! grep -qF "$UV_BASHRC_MARKER" "$BASHRC" 2>/dev/null; then
 export PATH="$HOME/.local/bin:$PATH"
 BASHEOF
 fi
-export PATH="$HOME/.local/bin:$PATH"
 
 # 9. Configure git credentials
 if [ -n "${GITHUB_TOKEN:-}" ]; then
     git config --global credential.helper store
     echo "https://x-token:${GITHUB_TOKEN}@github.com" > ~/.git-credentials
+    chmod 600 ~/.git-credentials
 fi
 git config --global user.name "${GIT_USER_NAME:-Roger}"
 git config --global user.email "${GIT_USER_EMAIL:-rkstager@gmail.com}"
